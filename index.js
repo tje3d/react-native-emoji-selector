@@ -1,65 +1,66 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { 
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import {
     View,
     Text,
     StyleSheet,
     ScrollView,
     TouchableOpacity,
-    TextInput, 
+    TextInput,
     Platform,
     Dimensions,
     ActivityIndicator,
     AsyncStorage,
-    FlatList,
-} from 'react-native';
-import emoji from 'emoji-datasource';
-import 'string.fromcodepoint';
+    FlatList
+} from "react-native";
+import emoji from "emoji-datasource";
+import "string.fromcodepoint";
 
 export const Categories = {
     all: {
         symbol: null,
-        name: 'All'
+        name: "All"
     },
     history: {
-        symbol: '🕘',
-        name: 'Recently used'
+        symbol: "🕘",
+        name: "Recently used"
     },
     people: {
-        symbol: '😊',
-        name: 'Smileys & People'
+        symbol: "😊",
+        name: "Smileys & People"
     },
     nature: {
-        symbol: '🦄',
-        name: 'Animals & Nature',
+        symbol: "🦄",
+        name: "Animals & Nature"
     },
     food: {
-        symbol: '🍔',
-        name: 'Food & Drink'
+        symbol: "🍔",
+        name: "Food & Drink"
     },
     activities: {
-        symbol: '⚾️',
-        name: 'Activities'
+        symbol: "⚾️",
+        name: "Activities"
     },
     places: {
-        symbol: '✈️',
-        name: 'Travel & Places'
+        symbol: "✈️",
+        name: "Travel & Places"
     },
     objects: {
-        symbol: '💡',
-        name: 'Objects'
+        symbol: "💡",
+        name: "Objects"
     },
     symbols: {
-        symbol: '🔣',
-        name: 'Symbols'
+        symbol: "🔣",
+        name: "Symbols"
     },
     flags: {
-        symbol: '🏳️‍🌈',
-        name: 'Flags'
+        symbol: "🏳️‍🌈",
+        name: "Flags"
     }
 };
 
-const charFromUtf16 = utf16 => String.fromCodePoint(...utf16.split('-').map(u => '0x' + u));
+const charFromUtf16 = utf16 =>
+    String.fromCodePoint(...utf16.split("-").map(u => "0x" + u));
 export const charFromEmojiObject = obj => charFromUtf16(obj.unified);
 const emojiByCategory = category => emoji.filter(e => e.category === category);
 const sortEmoji = list => list.sort((a, b) => a.sort_order - b.sort_order);
@@ -67,56 +68,60 @@ const { width } = Dimensions.get("screen");
 const categoryKeys = Object.keys(Categories);
 
 const TabCell = ({ onPress, active, theme, size, symbol }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
         onPress={onPress}
         style={{
             flex: 1,
             height: size,
-            borderColor: active ? theme : '#EEEEEE',
+            borderColor: active ? theme : "#EEEEEE",
             borderBottomWidth: 2,
-            alignItems: 'center',
-            justifyContent: 'center',
+            alignItems: "center",
+            justifyContent: "center"
         }}
     >
-        <Text style={{
-            textAlign: 'center',
-            paddingBottom: 8,
-            fontSize: size - 24
-        }}>
+        <Text
+            style={{
+                textAlign: "center",
+                paddingBottom: 8,
+                fontSize: size - 24
+            }}
+        >
             {symbol}
         </Text>
     </TouchableOpacity>
 );
 
 const TabBar = ({ theme, activeCategory, onPress }) => {
-    return (
-        categoryKeys.map(c => {
-            const tabSize = width / categoryKeys.length;
-            const category = Categories[c];
-            if (c !== 'all') return (
-                <TouchableOpacity 
+    return categoryKeys.map(c => {
+        const tabSize = width / categoryKeys.length;
+        const category = Categories[c];
+        if (c !== "all")
+            return (
+                <TouchableOpacity
                     key={category.name}
                     onPress={() => onPress(category)}
                     style={{
                         flex: 1,
                         height: tabSize,
-                        borderColor: category === activeCategory ? theme : '#EEEEEE',
+                        borderColor: category === activeCategory ? theme : "#EEEEEE",
                         borderBottomWidth: 2,
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                        alignItems: "center",
+                        justifyContent: "center"
                     }}
                 >
-                    <Text style={{
-                        textAlign: 'center',
-                        paddingBottom: 8,
-                        fontSize: (tabSize) - 24
-                    }}>
+                    <Text
+                        style={{
+                            color: "white",
+                            textAlign: "center",
+                            paddingBottom: 8,
+                            fontSize: tabSize - 24
+                        }}
+                    >
                         {category.symbol}
                     </Text>
                 </TouchableOpacity>
-            )
-        })
-    )
+            );
+    });
 };
 
 const EmojiCell = ({ emoji, colSize, ...other }) => (
@@ -125,26 +130,33 @@ const EmojiCell = ({ emoji, colSize, ...other }) => (
         style={{
             width: colSize,
             height: colSize,
-            alignItems: 'center',
-            justifyContent: 'center',
+            alignItems: "center",
+            justifyContent: "center"
         }}
         {...other}
     >
-        <Text style={{ fontSize: (colSize) - 12 }}>
+        <Text style={{ color: "white", fontSize: colSize - 12 }}>
             {charFromEmojiObject(emoji)}
         </Text>
     </TouchableOpacity>
 );
 
-const EmojiSection = ({ title, list, colSize, colCount, onLoadComplete, onEmojiSelected }) => (
+const EmojiSection = ({
+    title,
+    list,
+    colSize,
+    colCount,
+    onLoadComplete,
+    onEmojiSelected
+}) => (
     <View style={styles.container}>
         <Text style={styles.sectionHeader}>{title}</Text>
         <FlatList
             style={styles.scrollview}
             contentContainerStyle={{ paddingBottom: colSize }}
             data={list.map(emoji => ({ key: emoji.unified, emoji }))}
-            renderItem={({item}) => (
-                <EmojiCell 
+            renderItem={({ item }) => (
+                <EmojiCell
                     key={item.key}
                     emoji={item.emoji}
                     onPress={() => onEmojiSelected(item.emoji)}
@@ -153,48 +165,48 @@ const EmojiSection = ({ title, list, colSize, colCount, onLoadComplete, onEmojiS
             )}
             horizontal={false}
             numColumns={colCount}
-            keyboardShouldPersistTaps={'always'}
+            keyboardShouldPersistTaps={"always"}
             removeClippedSubviews
         />
     </View>
 );
 
-const storage_key = '@react-native-emoji-selector:HISTORY';
+const storage_key = "@react-native-emoji-selector:HISTORY";
 export default class EmojiSelector extends Component {
     state = {
-        searchQuery: '',
+        searchQuery: "",
         category: Categories.people,
         isReady: false,
         history: [],
         emojiList: null,
         colSize: 0
-    }
+    };
 
     //
     //  HANDLER METHODS
     //
-    handleTabSelect = (category) => {
+    handleTabSelect = category => {
         if (this.state.isReady) {
             if (this.scrollview)
-                this.scrollview.scrollToOffset({x: 0, y: 0, animated: false});
-            this.setState({ 
-                searchQuery: '',
-                category,
-            });       
+                this.scrollview.scrollToOffset({ x: 0, y: 0, animated: false });
+            this.setState({
+                searchQuery: "",
+                category
+            });
         }
-    }
-    handleEmojiSelect = (emoji) => {
+    };
+    handleEmojiSelect = emoji => {
         if (this.props.showHistory) {
             this.addToHistory(emoji);
         }
         this.props.onEmojiSelected(charFromEmojiObject(emoji));
-    }
-    addToHistory = (e) => {
+    };
+    addToHistory = e => {
         AsyncStorage.getItem(storage_key).then(result => {
             let value = [];
             if (result) {
                 const json = JSON.parse(result);
-                if (json.filter(r => r.unified === e.unified).length > 0)  {
+                if (json.filter(r => r.unified === e.unified).length > 0) {
                     value = json;
                 } else {
                     const record = Object.assign({}, e, { count: 1 });
@@ -206,57 +218,49 @@ export default class EmojiSelector extends Component {
                 history: value
             });
         });
-    }
+    };
     getHistory = () => {
         AsyncStorage.getItem(storage_key)
-        .then(result => JSON.parse(result))
-        .then(history => {
-            if (history) this.setState({ history });
-        });
-    }
+            .then(result => JSON.parse(result))
+            .then(history => {
+                if (history) this.setState({ history });
+            });
+    };
 
     //
     //  RENDER METHODS
     //
     returnSectionData() {
-        const { 
-            colSize,
-            history,
-            emojiList,
-            searchQuery,
-            category
-        } = this.state;
-        if (category === Categories.all && searchQuery === '') {
+        const { colSize, history, emojiList, searchQuery, category } = this.state;
+        if (category === Categories.all && searchQuery === "") {
             //TODO: OPTIMIZE THIS
-            let largeList =  [];
+            let largeList = [];
             categoryKeys.forEach(c => {
                 const name = Categories[c].name;
-                const list = name === Categories.history.name ? history : emojiList[name]  
-                if (c !== 'all' && c !== 'history') 
-                    largeList = largeList.concat(list);
+                const list = name === Categories.history.name ? history : emojiList[name];
+                if (c !== "all" && c !== "history") largeList = largeList.concat(list);
             });
 
-            return (largeList.map(emoji => ({ key: emoji.unified, emoji })))
-
+            return largeList.map(emoji => ({ key: emoji.unified, emoji }));
         } else {
             let list;
-            const hasSearchQuery = searchQuery !== '';
+            const hasSearchQuery = searchQuery !== "";
             const name = category.name;
             if (hasSearchQuery) {
                 const filtered = emoji.filter(e => {
                     let display = false;
                     e.short_names.forEach(name => {
-                        if(name.includes(searchQuery.toLowerCase())) display = true;
-                    })
+                        if (name.includes(searchQuery.toLowerCase())) display = true;
+                    });
                     return display;
                 });
                 list = sortEmoji(filtered);
             } else if (name === Categories.history.name) {
-                list = history
+                list = history;
             } else {
                 list = emojiList[name];
             }
-            return (list.map(emoji => ({ key: emoji.unified, emoji })))
+            return list.map(emoji => ({ key: emoji.unified, emoji }));
         }
     }
 
@@ -266,10 +270,13 @@ export default class EmojiSelector extends Component {
             let name = Categories[c].name;
             emojiList[name] = sortEmoji(emojiByCategory(name));
         });
-        this.setState({ 
-            emojiList, 
-            colSize: Math.floor(width / this.props.columns)
-        }, cb);
+        this.setState(
+            {
+                emojiList,
+                colSize: Math.floor(width / this.props.columns)
+            },
+            cb
+        );
     }
 
     //
@@ -279,14 +286,13 @@ export default class EmojiSelector extends Component {
         const { category } = this.props;
         this.setState({ category });
 
-        if (this.props.showHistory)
-            this.getHistory();
-        
+        if (this.props.showHistory) this.getHistory();
+
         this.prerenderEmojis(() => {
-            this.setState({isReady: true})
+            this.setState({ isReady: true });
         });
     }
-    
+
     render() {
         const {
             theme,
@@ -302,8 +308,8 @@ export default class EmojiSelector extends Component {
                 <TextInput
                     style={styles.search}
                     placeholder={this.props.placeholder}
-                    clearButtonMode='always'
-                    returnKeyType='done'
+                    clearButtonMode="always"
+                    returnKeyType="done"
                     autoCorrect={false}
                     underlineColorAndroid={this.props.theme}
                     value={this.state.searchQuery}
@@ -312,55 +318,69 @@ export default class EmojiSelector extends Component {
             </View>
         );
 
-        const title = this.state.searchQuery !== '' ? 'Search Results' : this.state.category.name;
+        const title =
+            this.state.searchQuery !== "" ? "Search Results" : this.state.category.name;
 
         return (
             <View style={styles.frame} {...other}>
                 <View style={styles.tabBar}>
-                    { showTabs && (
-                        <TabBar 
+                    {showTabs && (
+                        <TabBar
                             activeCategory={this.state.category}
                             onPress={this.handleTabSelect}
                             theme={theme}
                         />
                     )}
                 </View>
-                <View style={{flex: 1}}>
+                <View style={{ flex: 1 }}>
                     {showSearchBar && Searchbar}
                     {this.state.isReady ? (
-                        <View style={{flex: 1}}>
+                        <View style={{ flex: 1 }}>
                             <View style={styles.container}>
-                                {showSectionTitles && <Text style={styles.sectionHeader}>{title}</Text>}
+                                {showSectionTitles && (
+                                    <Text style={styles.sectionHeader}>{title}</Text>
+                                )}
                                 <FlatList
                                     style={styles.scrollview}
-                                    contentContainerStyle={{ paddingBottom: this.state.colSize }}
+                                    contentContainerStyle={{
+                                        paddingBottom: this.state.colSize
+                                    }}
                                     data={this.returnSectionData()}
-                                    renderItem={({item}) => (
-                                        <EmojiCell 
+                                    renderItem={({ item }) => (
+                                        <EmojiCell
                                             key={item.key}
                                             emoji={item.emoji}
-                                            onPress={() => this.handleEmojiSelect(item.emoji)}
+                                            onPress={() =>
+                                                this.handleEmojiSelect(item.emoji)
+                                            }
                                             colSize={this.state.colSize}
                                         />
                                     )}
                                     horizontal={false}
                                     numColumns={columns}
-                                    keyboardShouldPersistTaps={'always'}
-                                    ref={scrollview => this.scrollview = scrollview}
+                                    keyboardShouldPersistTaps={"always"}
+                                    ref={scrollview => (this.scrollview = scrollview)}
                                     removeClippedSubviews
                                 />
                             </View>
                         </View>
                     ) : (
                         <View style={styles.loader} {...other}>
-                            <ActivityIndicator size={'large'} color={Platform.OS === 'android' ? this.props.theme : '#000000'} />
+                            <ActivityIndicator
+                                size={"large"}
+                                color={
+                                    Platform.OS === "android"
+                                        ? this.props.theme
+                                        : "#000000"
+                                }
+                            />
                         </View>
                     )}
                 </View>
             </View>
         );
     }
-};
+}
 
 EmojiSelector.propTypes = {
     /** Function called when a user selects an Emoji */
@@ -371,7 +391,7 @@ EmojiSelector.propTypes = {
         PropTypes.string, // legacy
         PropTypes.object
     ]),
-    
+
     /** Placeholder of search input */
     placeholder: PropTypes.string,
 
@@ -391,39 +411,39 @@ EmojiSelector.propTypes = {
     category: PropTypes.object,
 
     /** Number of columns accross */
-    columns: PropTypes.number,
-}
+    columns: PropTypes.number
+};
 EmojiSelector.defaultProps = {
-    theme: '#007AFF',
+    theme: "#007AFF",
     category: Categories.all,
     showTabs: true,
     showSearchBar: true,
     showHistory: false,
     showSectionTitles: true,
     columns: 6,
-    placeholder: 'Search...'
-}
+    placeholder: "Search..."
+};
 
 const styles = StyleSheet.create({
     frame: {
         flex: 1,
-        width: '100%',
+        width: "100%"
     },
     loader: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center'
+        alignItems: "center",
+        justifyContent: "center"
     },
     tabBar: {
-        flexDirection: 'row'
+        flexDirection: "row"
     },
     scrollview: {
-        flex: 1,
+        flex: 1
     },
     searchbar_container: {
-        width: '100%',
+        width: "100%",
         zIndex: 1,
-        backgroundColor: 'rgba(255,255,255,0.75)'
+        backgroundColor: "rgba(255,255,255,0.75)"
     },
     search: {
         ...Platform.select({
@@ -431,20 +451,20 @@ const styles = StyleSheet.create({
                 height: 36,
                 paddingLeft: 8,
                 borderRadius: 10,
-                backgroundColor: '#E5E8E9'
+                backgroundColor: "#E5E8E9"
             }
         }),
-        margin: 8,
+        margin: 8
     },
     container: {
         flex: 1,
-        flexWrap: 'wrap',
-        flexDirection: 'row',
+        flexWrap: "wrap",
+        flexDirection: "row"
     },
     sectionHeader: {
         margin: 8,
         fontSize: 17,
-        width: '100%',
-        color: '#8F8F8F'
+        width: "100%",
+        color: "#8F8F8F"
     }
 });
